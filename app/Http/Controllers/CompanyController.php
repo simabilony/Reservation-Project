@@ -34,4 +34,10 @@ class CompanyController extends Controller
         return to_route('companies.index');
     }
 
+    public function destroy(Company $company)
+    {
+        $company->delete();
+
+        return to_route('companies.index');
+    }
 }
