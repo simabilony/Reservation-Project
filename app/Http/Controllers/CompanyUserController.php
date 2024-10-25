@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Enums\Role;
 use App\Models\Company;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class CompanyUserController extends Controller
@@ -39,6 +40,13 @@ class CompanyUserController extends Controller
     public function update(UpdateUserRequest $request, Company $company, User $user)
     {
         $user->update($request->validated());
+
+        return to_route('companies.users.index', $company);
+    }
+
+    public function destroy(Company $company, User $user)
+    {
+        $user->delete();
 
         return to_route('companies.users.index', $company);
     }
