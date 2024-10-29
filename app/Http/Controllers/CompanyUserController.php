@@ -7,6 +7,8 @@ use App\Models\Company;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\RegistrationInvite;
 
 class CompanyUserController extends Controller
 {
@@ -23,7 +25,7 @@ class CompanyUserController extends Controller
         return view('companies.users.create', compact('company'));
     }
 
-    public function store(StoreUserRequest $request, Company $company)
+    public function store(StoreUserRequest $request, Company $company, $invitation)
     {
         Gate::authorize('create', $company);
         $company->users()->create([
@@ -32,13 +34,13 @@ class CompanyUserController extends Controller
             'password' => bcrypt($request->input('password')),
             'role_id' => Role::COMPANY_OWNER->value,
         ]);
-
+        Mail::to($request->input('email'))->send(new RegistrationInvite($invitation));
         return to_route('companies.users.index', $company);
     }
 
     public function edit(Company $company, User $user)
     {
-        Gate::authorize('update', $company);
+        Gate::authorize('update ', $company);
         return view('companies.users.edit', compact('company', 'user'));
     }
 
