@@ -2,9 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\Role;
+use App\Http\Requests\StoreActivityRequest;
+use App\Http\Requests\UpdateActivityRequest;
+use App\Models\Activity;
 use App\Models\Company;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Storage;
+use Intervention\Image\ImageManager;
 
 class CompanyActivityController extends Controller
 {
@@ -29,13 +36,15 @@ class CompanyActivityController extends Controller
     public function store(StoreActivityRequest $request, Company $company)
     {
         Gate::authorize('create', $company);
-        if ($request->hasFile('image')) {
-            $path = $request->file('image')->store('activities', 'public');
-        }
+//        if ($request->hasFile('image')) {
+//            $path = $request->file('image')->store('activities', 'public');
+//        }
+        $filename = $this->uploadImage($request);
 
         $activity = Activity::create($request->validated() + [
                 'company_id' => $company->id,
-                'photo' => $path ?? null,
+//                'photo' => $path ?? null,
+                'photo' => $filename,
             ]);
 
         return to_route('companies.activities.index', $company);
@@ -55,15 +64,17 @@ class CompanyActivityController extends Controller
     public function update(UpdateActivityRequest $request, Company $company, Activity $activity)
     {
         Gate::authorize('update', $company);
-        if ($request->hasFile('image')) {
-            $path = $request->file('image')->store('activities', 'public');
-            if ($activity->photo) {
-                Storage::disk('public')->delete($activity->photo);
-            }
-        }
+//        if ($request->hasFile('image')) {
+//            $path = $request->file('image')->store('activities', 'public');
+//            if ($activity->photo) {
+//                Storage::disk('public')->delete($activity->photo);
+//            }
+//        }
+        $filename = $this->uploadImage($request);
 
         $activity->update($request->validated() + [
-                'photo' => $path ?? $activity->photo,
+//                'photo' => $path ?? $activity->photo,
+                'photo' => $filename ?? $activity->photo,
             ]);
 
         return to_route('companies.activities.index', $company);
@@ -75,5 +86,22 @@ class CompanyActivityController extends Controller
         $activity->delete();
 
         return to_route('companies.activities.index', $company);
+    }
+    private function uploadImage(StoreActivityRequest|UpdateActivityRequest $request): string|null
+    {
+        if (! $request->hasFile('image')) {
+            return null;
+        }
+
+        $filename = $request->file('image')->store(options: 'activities');
+
+        $thumb = ImageManager::imagick()->read(Storage::disk('activities')->get($filename))
+            ->scaleDown(274, 274)
+            ->toJpeg()
+            ->toFilePointer();
+
+        Storage::disk('activities')->put('thumbs/' . $request->file('image')->hashName(), $thumb);
+
+        return $filename;
     }
 }
