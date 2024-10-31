@@ -9,11 +9,28 @@
         <div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
             <div class="overflow-hidden bg-white shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
-                    @session('success'))
-                    <div class="mb-6 bg-indigo-100 p-4 text-indigo-700">{{ session('success') }}</div>
-                    @endsession
+{{--                    @session('success'))--}}
+{{--                    <div class="mb-6 bg-indigo-100 p-4 text-indigo-700">{{ session('success') }}</div>--}}
+{{--                    @endsession--}}
+                    @if(session('success'))
+                        <div class="mb-6 bg-indigo-100 p-4 text-indigo-700">{{ session('success') }}</div>
+                    @endif
 
-                    My Activities
+{{--                    My Activities--}}
+                    <div class="grid grid-cols-4 gap-5">
+                        @forelse($activities as $activity)
+                            <div class="space-y-3">
+                                <a href="{{ route('activity.show', $activity) }}">
+                                    <img src="{{ asset($activity->thumbnail) }}" alt="{{ $activity->name }}"> </a>
+                                <h2>
+                                    <a href="{{ route('activity.show', $activity) }}" class="text-lg font-semibold">{{ $activity->name }}</a>
+                                </h2>
+                                <time>{{ $activity->start_time }}</time>
+                            </div>
+                        @empty
+                            <p>No activities</p>
+                        @endforelse
+                    </div>
                 </div>
             </div>
         </div>

@@ -14,10 +14,10 @@ use Illuminate\Support\Facades\Route;
 //Route::get('/', function () {
 //    return view('welcome');
 //});
-//
-//Route::get('/dashboard', function () {
-//    return view('dashboard');
-//})->middleware(['auth', 'verified'])->name('dashboard');
+
+Route::get('/dashboard', function () {
+    return view('dashboard');
+})->middleware(['auth', 'verified'])->name('dashboard');
 Route::get('/', HomeController::class)->name('home');
 Route::get('/activities/{activity}', [ActivityController::class, 'show'])->name('activity.show');
 Route::post('/activities/{activity}/register', [ActivityRegisterController::class, 'store'])->name('activities.register');
