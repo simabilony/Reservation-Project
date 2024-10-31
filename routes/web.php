@@ -21,6 +21,7 @@ Route::get('/dashboard', function () {
 Route::get('/', HomeController::class)->name('home');
 Route::get('/activities/{activity}', [ActivityController::class, 'show'])->name('activity.show');
 Route::post('/activities/{activity}/register', [ActivityRegisterController::class, 'store'])->name('activities.register');
+Route::delete('/activities/{activity}', [MyActivityController::class, 'destroy'])->name('my-activity.destroy');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
