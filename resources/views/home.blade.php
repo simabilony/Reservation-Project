@@ -12,9 +12,12 @@
                     <div class="grid grid-cols-4 gap-x-5 gap-y-8">
                         @forelse($activities as $activity)
                             <div>
+                                <a href="{{ route('activity.show', $activity) }}">
                                 <img src="{{ asset($activity->thumbnail) }}" alt="{{ $activity->name }}">
+                                </a>
                                 <h2>
-                                    <a href="#" class="text-lg font-semibold">{{ $activity->name }}</a>
+{{--                                    <a href="#" class="text-lg font-semibold">{{ $activity->name }}</a>--}}
+                                    <a href="{{ route('activity.show', $activity) }}" class="text-lg font-semibold">{{ $activity->name }}</a>
                                 </h2>
                                 <time>{{ $activity->start_time }}</time>
                             </div>
