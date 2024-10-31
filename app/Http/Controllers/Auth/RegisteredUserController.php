@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Auth;
 
 use App\Enums\Role;
 use App\Http\Controllers\Controller;
+use App\Models\Activity;
 use App\Models\User;
+use App\Notifications\RegisteredToActivityNotification;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -18,9 +20,14 @@ class RegisteredUserController extends Controller
     /**
      * Display the registration view.
      */
-    public function create(): View
+    public function create(Request $request): View
     {
-        return view('auth.register');
+
+        if ($request->has('activity')) {
+            session()->put('activity', $request->input('activity'));
+        }
+        $email = 0;
+        return view('auth.register', compact('email'));
     }
 
     /**
@@ -44,9 +51,13 @@ class RegisteredUserController extends Controller
         ]);
 
         event(new Registered($user));
-
         Auth::login($user);
-
+        $activity = Activity::find($request->session()->get('activity'));
+        if ($request->session()->get('activity') && $activity) {
+            $user->activities()->attach($request->session()->get('activity'));
+            $user->notify(new RegisteredToActivityNotification($activity));
+            return redirect()->route('my-activity.show')->with('success', 'You have successfully registered.');
+        }
         return redirect(route('home', absolute: false));
     }
 }
